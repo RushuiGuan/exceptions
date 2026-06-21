@@ -5,7 +5,7 @@
 Initial release of the Albatross.Exceptions vocabulary.
 
 ### Albatross Exceptions
-- `ValidationException` (400) - Input is structurally or semantically invalid.
+- `ValidationException` (422) - Input is structurally or semantically invalid.
 - `NotAuthenticatedException` (401) - The caller's identity has not been established.
 - `ForbiddenException` (403) - The caller is authenticated but lacks permission.
 - `NotFoundException` (404) - A required entity or resource cannot be found.
@@ -15,7 +15,6 @@ Initial release of the Albatross.Exceptions vocabulary.
 ### Documented Framework Exceptions
 The following `System` exceptions are documented as part of the vocabulary for consistent usage and hosting-layer mapping:
 - `ArgumentException` (400)
-- `NotSupportedException` (400)
-- `NotImplementedException` (501)
+- `NotSupportedException` (501)
 - `TimeoutException` (408)
 - `OperationCanceledException` (-)

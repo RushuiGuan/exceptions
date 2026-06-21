@@ -29,12 +29,23 @@ namespace Albatross.Exceptions {
 	///     state of the system. The same input might succeed at a different time.
 	///   </item>
 	/// </list>
+	/// <para><strong>How it differs from <see cref="System.ArgumentException"/>:</strong></para>
+	/// <list type="bullet">
+	///   <item>
+	///     <see cref="ValidationException"/> (<c>422</c>): the server parsed the request successfully
+	///     but the content is semantically invalid. The syntax is fine; the values are wrong.
+	///   </item>
+	///   <item>
+	///     <see cref="System.ArgumentException"/> (<c>400</c>): the request itself is malformed or
+	///     violates the method contract at the API boundary — a structural problem, not a content problem.
+	///   </item>
+	/// </list>
 	/// <para>
-	/// In HTTP terms this maps to <c>400 Bad Request</c>.
+	/// In HTTP terms this maps to <c>422 Unprocessable Entity</c>.
 	/// </para>
 	/// </remarks>
 	public class ValidationException : Exception {
-		public const int StatusCode = 400;
+		public const int StatusCode = 422;
 		public ValidationException() { }
 		public ValidationException(string msg) : base(msg) { }
 	}
