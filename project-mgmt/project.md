@@ -2,7 +2,7 @@
 
 status: active
 created: 2026-06-21T10:00:00-04:00
-updated: 2026-06-21T10:15:00-04:00
+updated: 2026-06-21T10:30:00-04:00
 ----
 
 ## Business Requirements
@@ -13,15 +13,14 @@ The assembly is deliberately scoped to **common semantic exceptions** — except
 
 ## Technical Design
 
-- **Vocabulary, not behavior**: The assembly defines a shared vocabulary of exception types. No extension methods, no middleware, no mapping logic — just the names and constructors that give error conditions a common meaning across projects.
+- **Declarations only — no implementations**: The assembly contains exception classes and interface contracts. No extension methods, no middleware, no mapping logic, no implementations. An interface like `ISemanticExceptionConverter` is a declaration (it defines a contract), not behavior — implementations live in consuming assemblies.
 - **Target framework**: `netstandard2.1` — maximizes compatibility across .NET consumers.
 - **NuGet package**: Packaged with icon, license, and per-project README for distribution as a private NuGet package.
 - **Naming convention**: Each exception is named for the semantic condition it represents (e.g. `NotFoundException`), not for the HTTP status code or infrastructure concern it might map to. Mapping exceptions to HTTP responses is the responsibility of the hosting layer, not this assembly.
-- **Generic variants**: Where useful, a generic variant (e.g. `NotFoundException<T>`) derives the entity name from the type parameter to eliminate magic strings at the call site.
 
 ## Key Design Decisions
 
-- **Vocabulary, not behavior**: The assembly defines what error conditions are called, not what happens when they occur. Utilities, mapping logic, middleware, or any runtime behavior belong in other assemblies. This keeps the dependency lightweight and its purpose unambiguous.
+- **Vocabulary, not behavior**: The assembly defines what error conditions are called, not what happens when they occur. Utilities, mapping logic, middleware, or any runtime behavior belong in other assemblies. This keeps the dependency lightweight and its purpose unambiguous. Interface contracts (declarations without implementations) are permitted but each addition should be scrutinized against the same standard — every new type must justify its presence.
 - **Inclusion criteria**: An exception belongs in this assembly only if it meets all five conditions:
   1. It is meaningful across multiple transports/frameworks.
   2. It maps clearly to a stable semantic category.
