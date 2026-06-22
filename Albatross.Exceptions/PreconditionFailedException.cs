@@ -38,6 +38,7 @@ namespace Albatross.Exceptions {
 	public class PreconditionFailedException : Exception {
 		public const int StatusCode = 412;
 		public PreconditionFailedException() { }
-		public PreconditionFailedException(string msg) : base(msg) { }
+		public PreconditionFailedException(string? message) : base(message) { }
+		public PreconditionFailedException(string? msg, Exception? inner) : base(msg, inner) { }
 	}
 }

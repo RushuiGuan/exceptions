@@ -37,6 +37,7 @@ namespace Albatross.Exceptions {
 	public class NotAuthenticatedException : Exception {
 		public const int StatusCode = 401;
 		public NotAuthenticatedException() { }
-		public NotAuthenticatedException(string msg) : base(msg) { }
+		public NotAuthenticatedException(string? message) : base(message) { }
+		public NotAuthenticatedException(string? msg, Exception? inner) : base(msg, inner) { }
 	}
 }

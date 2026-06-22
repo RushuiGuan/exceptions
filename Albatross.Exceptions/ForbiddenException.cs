@@ -35,6 +35,7 @@ namespace Albatross.Exceptions {
 	public class ForbiddenException : Exception {
 		public const int StatusCode = 403;
 		public ForbiddenException() { }
-		public ForbiddenException(string msg) : base(msg) { }
+		public ForbiddenException(string? message) : base(message) { }
+		public ForbiddenException(string? msg, Exception? inner) : base(msg, inner) { }
 	}
 }

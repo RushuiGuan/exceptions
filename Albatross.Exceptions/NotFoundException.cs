@@ -35,6 +35,7 @@ namespace Albatross.Exceptions {
 	public class NotFoundException : Exception {
 		public const int StatusCode = 404;
 		public NotFoundException() { }
-		public NotFoundException(string msg) : base(msg) { }
+		public NotFoundException(string? message) : base(message) { }
+		public NotFoundException(string? msg, Exception? inner) : base(msg, inner) { }
 	}
 }

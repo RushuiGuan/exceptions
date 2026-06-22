@@ -47,6 +47,7 @@ namespace Albatross.Exceptions {
 	public class ValidationException : Exception {
 		public const int StatusCode = 422;
 		public ValidationException() { }
-		public ValidationException(string msg) : base(msg) { }
+		public ValidationException(string? message) : base(message) { }
+		public ValidationException(string? msg, Exception? inner) : base(msg, inner) { }
 	}
 }

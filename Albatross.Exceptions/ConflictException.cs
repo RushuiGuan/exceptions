@@ -36,6 +36,7 @@ namespace Albatross.Exceptions {
 	public class ConflictException : Exception {
 		public const int StatusCode = 409;
 		public ConflictException() { }
-		public ConflictException(string msg) : base(msg) { }
+		public ConflictException(string? message) : base(message) { }
+		public ConflictException(string? msg, Exception? inner) : base(msg,  inner) { }
 	}
 }
