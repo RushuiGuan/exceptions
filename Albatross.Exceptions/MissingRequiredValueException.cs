@@ -24,11 +24,10 @@ namespace Albatross.Exceptions {
 	/// but nothing was returned — a contract violation rather than a missing entity.
 	/// </para>
 	/// <para>
-	/// In HTTP terms this maps to <c>500 Internal Server Error</c>.
+	/// This exception doesn't map to an http status code because it is not a http error
 	/// </para>
 	/// </remarks>
 	public class MissingRequiredValueException : Exception {
-		public const int StatusCode = 500;
 		public MissingRequiredValueException() { }
 		public MissingRequiredValueException(string? message) : base(message) { }
 		public MissingRequiredValueException(string? msg, Exception? inner) : base(msg, inner) { }
