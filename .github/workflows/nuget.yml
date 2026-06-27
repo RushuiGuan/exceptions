@@ -37,6 +37,13 @@ jobs:
         id: version
         run: |
           base=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
+          # Block candidates for a version that has already been released.
+          # Exact match only: v1.0.0 existing blocks 1.0.0-rc.N, but an unrelated
+          # higher release (e.g. v1.0.1) does not block 1.0.0-rc.N.
+          if git rev-parse -q --verify "refs/tags/v${base}" >/dev/null; then
+            echo "::error::v${base} is already released — bump <Version> in Directory.Build.props before publishing new candidates"
+            exit 1
+          fi
           count=$(git rev-list --count HEAD)
           version="${base}-rc.${count}"
           echo "Prerelease version: $version"
