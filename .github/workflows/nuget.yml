@@ -30,7 +30,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write   # create the GitHub Release
       packages: read    # restore from the GitHub feed
       id-token: write   # Trusted Publishing OIDC exchange (NuGet/login)
     steps:
