@@ -11,6 +11,7 @@ Initial release of the Albatross.Exceptions vocabulary.
 - `NotFoundException` (404) - A required entity or resource cannot be found.
 - `ConflictException` (409) - The operation conflicts with the current state of a resource.
 - `PreconditionFailedException` (412) - The caller's stated precondition about resource state is not met.
+- `MissingRequiredValueException` - A value required by an operation or provider contract was null or absent.
 
 ### Documented Framework Exceptions
 The following `System` exceptions are documented as part of the vocabulary for consistent usage and hosting-layer mapping:
@@ -18,3 +19,8 @@ The following `System` exceptions are documented as part of the vocabulary for c
 - `NotSupportedException` (501)
 - `TimeoutException` (408)
 - `OperationCanceledException` (-)
+
+### Classification
+- `SemanticError` enum - names every condition above as a value, so owned and framework exceptions share one vocabulary.
+- `SemanticErrorExtensions.TryGetSemanticError` - the default classifier that maps any known exception to its `SemanticError`.
+- `ISemanticExceptionConverter` - contract the hosting layer can implement to recognize additional exception types before falling back to the default classifier.
