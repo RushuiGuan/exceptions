@@ -37,3 +37,31 @@ if (exception.TryGetSemanticError(out var error)) {
 ```
 
 The hosting layer remains the owner of behavior. It may run its own `ISemanticExceptionConverter` chain first — to recognize transport- or library-specific exceptions — and fall back to `TryGetSemanticError` for the shared vocabulary.
+
+## Composing the converter and the classifier
+
+`ISemanticExceptionConverter` and `TryGetSemanticError` form a two-stage pipeline:
+
+```
+arbitrary Exception ──ISemanticExceptionConverter──▶ semantic Exception ──TryGetSemanticError──▶ SemanticError
+   (normalize)                                          (classify)
+```
+
+- **`ISemanticExceptionConverter`** is the *normalize* stage. It turns exceptions outside the vocabulary — a library's `DbException`, a third-party client error, a domain-specific exception — into one of the known types.
+- **`TryGetSemanticError`** is the *classify* stage. It has no opinion about where an exception came from; it maps a known type to its `SemanticError` value.
+
+The `Resolve` extension method wires them together — classify directly first, and only normalize when the exception is not already in the vocabulary:
+
+```csharp
+public static SemanticError? Resolve(this Exception ex, params IEnumerable<ISemanticExceptionConverter> converters) {
+    if (ex.TryGetSemanticError(out var error))          // already in the vocabulary?
+        return error;
+    foreach (var converter in converters) {             // otherwise try to normalize it
+        if (converter.TryConvert(ex, out var converted) && converted.TryGetSemanticError(out error))
+            return error;
+    }
+    return null;                                         // unknown — let it bubble as a 500
+}
+```
+
+`TryGetSemanticError` already recognizes the four framework exceptions directly, so converters never need to handle those. Their job is strictly the exceptions that are not already in the shared vocabulary: the enum classifier owns the known set, and converters extend it.

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Albatross.Exceptions {
 	public static class SemanticErrorExtensions {
@@ -27,6 +28,16 @@ namespace Albatross.Exceptions {
 				case OperationCanceledException _: error = SemanticError.Canceled; return true;
 				default: error = default; return false;
 			}
+		}
+
+		public static SemanticError? Resolve(this Exception ex, params IEnumerable<ISemanticExceptionConverter> converters) {
+			if (ex.TryGetSemanticError(out var error))          // already in the vocabulary?
+				return error;
+			foreach (var converter in converters) {             // otherwise try to normalize it
+				if (converter.TryConvert(ex, out var converted) && converted.TryGetSemanticError(out error))
+					return error;
+			}
+			return null;                                         // unknown — let it bubble as a 500
 		}
 	}
 }
