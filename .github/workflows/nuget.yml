@@ -1,4 +1,4 @@
-name: nuget
+name: nuget deploy
 
 # Calls the reusable workflows in RushuiGuan/devops:
 #   - push to `rc`      -> prerelease to GitHub Packages
