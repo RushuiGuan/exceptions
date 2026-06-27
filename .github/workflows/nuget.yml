@@ -1,14 +1,13 @@
 name: nuget deploy
 
-# Calls the reusable workflows in RushuiGuan/devops:
-#   - push to `rc`      -> prerelease to GitHub Packages
-#   - push tag `vX.Y.Z` -> stable release to nuget.org (tag must be on `production`)
+# Publishing:
+#   - push to `rc`      -> prerelease to GitHub Packages (reusable workflow)
+#   - push tag `vX.Y.Z` -> stable release to nuget.org (composite action; tag must be on `production`)
 # `main` is the work branch and publishes nothing.
 #
-# nuget.org uses Trusted Publishing. The OIDC exchange (NuGet/login) runs HERE in
-# the caller so the job_workflow_ref claim is this repo's workflow, matching the
-# nuget.org policy (Repository: exceptions, Workflow: nuget.yml). The short-lived
-# key is then handed to the reusable release workflow.
+# nuget.org uses Trusted Publishing. The composite action runs NuGet/login + push in
+# THIS job, so the OIDC job_workflow_ref claim is this repo's workflow, matching the
+# nuget.org policy (Repository: exceptions, Workflow: nuget.yml).
 on:
   push:
     branches:
@@ -19,8 +18,7 @@ on:
 
 permissions:
   contents: read
-  packages: write   # caps the token for the called workflows (prerelease needs write)
-  id-token: write   # for the nuget-login job's OIDC token exchange
+  packages: write   # caps the token for the prerelease reusable workflow
 
 jobs:
   prerelease:
@@ -28,26 +26,14 @@ jobs:
     uses: RushuiGuan/devops/.github/workflows/nuget-prerelease.yml@v1
     secrets: inherit
 
-  # Mint the short-lived nuget.org key via OIDC. Runs in this repo, so the
-  # job_workflow_ref claim is exceptions/.github/workflows/nuget.yml.
-  nuget-login:
+  nuget-release:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
-    outputs:
-      api-key: ${{ steps.login.outputs.NUGET_API_KEY }}
+      packages: read    # restore from the GitHub feed
+      id-token: write   # Trusted Publishing OIDC exchange (NuGet/login)
     steps:
-      - name: NuGet login (OIDC -> short-lived API key)
-        uses: NuGet/login@v1
-        id: login
+      - uses: RushuiGuan/devops/.github/actions/nuget-release-nugetorg@v1
         with:
-          user: Rushui
-
-  nuget-release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: nuget-login
-    uses: RushuiGuan/devops/.github/workflows/nuget-release-nugetorg.yml@v1
-    with:
-      nuget-api-key: ${{ needs.nuget-login.outputs.api-key }}
+          nuget-user: Rushui
