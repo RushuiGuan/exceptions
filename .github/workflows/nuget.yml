@@ -10,6 +10,7 @@ on:
       - rc
     tags:
       - 'v*'
+  workflow_dispatch:   # manual "Run workflow" button (select the rc branch to publish a prerelease)
 
 permissions:
   contents: read
