@@ -4,6 +4,11 @@ name: nuget deploy
 #   - push to `rc`      -> prerelease to GitHub Packages
 #   - push tag `vX.Y.Z` -> stable release to nuget.org (tag must be on `production`)
 # `main` is the work branch and publishes nothing.
+#
+# nuget.org uses Trusted Publishing. The OIDC exchange (NuGet/login) runs HERE in
+# the caller so the job_workflow_ref claim is this repo's workflow, matching the
+# nuget.org policy (Repository: exceptions, Workflow: nuget.yml). The short-lived
+# key is then handed to the reusable release workflow.
 on:
   push:
     branches:
@@ -15,7 +20,7 @@ on:
 permissions:
   contents: read
   packages: write   # caps the token for the called workflows (prerelease needs write)
-  id-token: write   # required so the OIDC token carries job_workflow_ref for Trusted Publishing
+  id-token: write   # for the nuget-login job's OIDC token exchange
 
 jobs:
   prerelease:
@@ -23,8 +28,26 @@ jobs:
     uses: RushuiGuan/devops/.github/workflows/nuget-prerelease.yml@v1
     secrets: inherit
 
+  # Mint the short-lived nuget.org key via OIDC. Runs in this repo, so the
+  # job_workflow_ref claim is exceptions/.github/workflows/nuget.yml.
+  nuget-login:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      api-key: ${{ steps.login.outputs.NUGET_API_KEY }}
+    steps:
+      - name: NuGet login (OIDC -> short-lived API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: Rushui
+
   nuget-release:
     if: startsWith(github.ref, 'refs/tags/v')
+    needs: nuget-login
     uses: RushuiGuan/devops/.github/workflows/nuget-release-nugetorg.yml@v1
     with:
-      nuget-user: Rushui   # nuget.org profile name (verify this matches your account)
+      nuget-api-key: ${{ needs.nuget-login.outputs.api-key }}
