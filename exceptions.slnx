@@ -8,5 +8,6 @@
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
+  <Project Path="Albatross.Exceptions.UnitTest/Albatross.Exceptions.UnitTest.csproj" />
   <Project Path="Albatross.Exceptions/Albatross.Exceptions.csproj" />
 </Solution>
