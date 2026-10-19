@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Albatross.Exceptions {
 	/// <summary>
@@ -49,5 +51,20 @@ namespace Albatross.Exceptions {
 		public ValidationException() { }
 		public ValidationException(string? message) : base(message) { }
 		public ValidationException(string? msg, Exception? inner) : base(msg, inner) { }
+		public ValidationException(IEnumerable<ValidationError> errors) : this(errors.ToArray()) { }
+		ValidationException(ValidationError[] errors) : base(CreateMessage(errors)) {
+			this.Errors = errors;
+		}
+
+		public IReadOnlyList<ValidationError> Errors { get; } = Array.Empty<ValidationError>();
+
+		// Validation failed: [cenCode] Cen code 'ABCDE' is invalid; [marketId] Market id 0 is invalid
+		static string CreateMessage(ValidationError[] errors) {
+			if (errors.Length == 0) {
+				return "Validation failed";
+			}
+			var items = errors.Select(x => string.IsNullOrEmpty(x.Field) ? x.Error : $"[{x.Field}] {x.Error}");
+			return $"Validation failed: {string.Join("; ", items)}";
+		}
 	}
 }
