@@ -2,21 +2,20 @@
 
 ## 1.0.6
 
-Changes since 1.0.1. Versions released in between are unlisted; upgrade from 1.0.1 directly to 1.0.6.
-
-### Breaking changes
-- Validation failures that carry field errors now use the new `FieldValidationException`. `ValidationException` no longer has the `ValidationException(IEnumerable<ValidationError>)` constructor or the `Errors` property.
-  - Replace `new ValidationException(errors)` with `new FieldValidationException(errors)`.
-  - Code that catches `ValidationException` to read `Errors` must catch `FieldValidationException` instead. The two types are unrelated, so a handler that maps validation failures must check for both.
-- The message built from field errors no longer starts with `Validation failed: `. It is now just the errors joined with `; `, for example `[cenCode] Cen code 'ABCDE' is invalid; Base and quote currency are the same`. With no errors, the message is still `Validation failed`.
-- `ValidationException` uses `Validation failed` as its message when none is given: for the parameterless constructor, and when the message passed in is null or empty. Previously these produced the default .NET exception message or an empty string.
+Changes since 1.0.0. Versions released in between are unlisted; upgrade from 1.0.0 directly to 1.0.6.
 
 ### Added
-- `FieldValidationException` (422): input is invalid, reported as a list of `ValidationError` items in `Errors`, kept in the order given. Its constructors take the errors as `params`, or with an inner exception.
-- `ValidationError(string error)` creates an error about the object as a whole, with no field.
-- `ValidationError.ToString()` returns `[field] error`, or just the error when there is no field.
+- `FieldValidationException` (422): input is invalid, reported as a list of `ValidationError` items in `Errors`, kept in the order given. Its constructors take the errors as `params`, or with an inner exception. Its message joins the errors with `; `, for example `[cenCode] Cen code 'ABCDE' is invalid; Base and quote currency are the same`, or is `Validation failed` when there are none.
+  - `ValidationException` and `FieldValidationException` are unrelated types, so a handler that maps validation failures must check for both.
+- `ValidationError`: one validation failure, with an optional field.
+  - `ValidationError(string field, string error)` ties the error to a field, such as `legs[0].cenCode`.
+  - `ValidationError(string error)` creates an error about the object as a whole, with no field.
+  - `ToString()` returns `[field] error`, or just the error when there is no field.
 - `ValidationException.StandardMessage` holds the `Validation failed` default message.
 - `TryGetSemanticError` maps `FieldValidationException` to `SemanticError.Validation`.
+
+### Changed
+- `ValidationException` uses `Validation failed` as its message when none is given: for the parameterless constructor, and when the message passed in is null or empty. Previously these produced the default .NET exception message or an empty string.
 
 ## 1.0.0
 
