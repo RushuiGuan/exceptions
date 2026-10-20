@@ -52,7 +52,7 @@ namespace Albatross.Exceptions {
 
 		public ValidationException() : base(CreateMessageFromString(StandardMessage)) { }
 		public ValidationException(string? message) : this(CreateMessageFromString(message), null) { }
-		public ValidationException(string? message, Exception? inner) : base(CreateMessageFromString(null), inner) { }
+		public ValidationException(string? message, Exception? inner) : base(CreateMessageFromString(message), inner) { }
 
 		public ValidationException(params IEnumerable<ValidationError> errors) : this(errors, null) { }
 		public ValidationException(IEnumerable<ValidationError> errors, Exception? inner) : this(errors.ToArray(), inner) { }

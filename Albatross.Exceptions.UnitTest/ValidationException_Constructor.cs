@@ -23,7 +23,7 @@ namespace Albatross.Exceptions.UnitTest {
 		[MemberData(nameof(Messages))]
 		public void MessageFromErrors(ValidationError[] errors, string expected) {
 			var exception = new ValidationException(errors);
-			Assert.Equal(expected, ValidationException.StandardMessage);
+			Assert.Equal(expected, exception.Message);
 		}
 
 		[Fact]
@@ -42,22 +42,22 @@ namespace Albatross.Exceptions.UnitTest {
 			}
 			var exception = new ValidationException(Validate());
 			Assert.Single(exception.Errors);
-			Assert.Equal("[marketId] Market id 0 is invalid", ValidationException.StandardMessage);
+			Assert.Equal("[marketId] Market id 0 is invalid", exception.Message);
 			Assert.Equal(1, count);
 		}
 
 		[Fact]
-		public void MessageOnly_BecomesErrorWithoutField() {
+		public void MessageOnly_HasNoErrors() {
 			var exception = new ValidationException("Cen code is missing");
-			Assert.Equal([new ValidationError("Cen code is missing")], exception.Errors);
-			Assert.Equal("Cen code is missing", ValidationException.StandardMessage);
+			Assert.Empty(exception.Errors);
+			Assert.Equal("Cen code is missing", exception.Message);
 		}
 
 		[Fact]
 		public void EmptyMessage_HasNoErrors() {
 			var exception = new ValidationException("");
 			Assert.Empty(exception.Errors);
-			Assert.Equal("Validation failed", ValidationException.StandardMessage);
+			Assert.Equal("Validation failed", exception.Message);
 		}
 	}
 }
