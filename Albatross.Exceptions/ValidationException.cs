@@ -54,15 +54,6 @@ namespace Albatross.Exceptions {
 		public ValidationException(string? message) : this(CreateMessageFromString(message), null) { }
 		public ValidationException(string? message, Exception? inner) : base(CreateMessageFromString(message), inner) { }
 
-		public ValidationException(params IEnumerable<ValidationError> errors) : this(errors, null) { }
-		public ValidationException(IEnumerable<ValidationError> errors, Exception? inner) : this(errors.ToArray(), inner) { }
-
-		ValidationException(ValidationError[] errors, Exception? inner) : base(CreateMessage(errors), inner) {
-			this.Errors = errors;
-		}
-
-		public IReadOnlyList<ValidationError> Errors { get; } = Array.Empty<ValidationError>();
-
 		static string CreateMessageFromString(string? error) {
 			if (string.IsNullOrEmpty(error)) {
 				return StandardMessage;
@@ -70,11 +61,23 @@ namespace Albatross.Exceptions {
 				return error;
 			}
 		}
+	}
+	public class FieldValidationException : Exception {
+		public const int StatusCode = 422;
+
+		public FieldValidationException(params IEnumerable<ValidationError> errors) : this(errors, null) { }
+		public FieldValidationException(IEnumerable<ValidationError> errors, Exception? inner) : this(errors.ToArray(), inner) { }
+
+		FieldValidationException(ValidationError[] errors, Exception? inner) : base(CreateMessage(errors), inner) {
+			this.Errors = errors;
+		}
+
+		public IReadOnlyList<ValidationError> Errors { get; } = Array.Empty<ValidationError>();
 
 		// [cenCode] Cen code 'ABCDE' is invalid; [marketId] Market id 0 is invalid
 		static string CreateMessage(ValidationError[] errors) {
 			if (errors.Length == 0) {
-				return StandardMessage;
+				return ValidationException.StandardMessage;
 			}
 			return string.Join<ValidationError>("; ", errors);
 		}

@@ -16,6 +16,7 @@ namespace Albatross.Exceptions {
 		public static bool TryGetSemanticError(this Exception exception, out SemanticError error) {
 			switch (exception) {
 				case ValidationException _: error = SemanticError.Validation; return true;
+				case FieldValidationException _: error = SemanticError.Validation; return true;
 				case NotAuthenticatedException _: error = SemanticError.NotAuthenticated; return true;
 				case ForbiddenException _: error = SemanticError.Forbidden; return true;
 				case NotFoundException _: error = SemanticError.NotFound; return true;
