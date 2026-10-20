@@ -48,23 +48,35 @@ namespace Albatross.Exceptions {
 	/// </remarks>
 	public class ValidationException : Exception {
 		public const int StatusCode = 422;
-		public ValidationException() { }
-		public ValidationException(string? message) : base(message) { }
-		public ValidationException(string? msg, Exception? inner) : base(msg, inner) { }
-		public ValidationException(IEnumerable<ValidationError> errors) : this(errors.ToArray()) { }
-		ValidationException(ValidationError[] errors) : base(CreateMessage(errors)) {
+		public const string StandardMessage = "Validation failed";
+
+		public ValidationException() : base(CreateMessageFromString(StandardMessage)) { }
+		public ValidationException(string? message) : this(CreateMessageFromString(message), null) { }
+		public ValidationException(string? message, Exception? inner) : base(CreateMessageFromString(null), inner) { }
+
+		public ValidationException(params IEnumerable<ValidationError> errors) : this(errors, null) { }
+		public ValidationException(IEnumerable<ValidationError> errors, Exception? inner) : this(errors.ToArray(), inner) { }
+
+		ValidationException(ValidationError[] errors, Exception? inner) : base(CreateMessage(errors), inner) {
 			this.Errors = errors;
 		}
 
 		public IReadOnlyList<ValidationError> Errors { get; } = Array.Empty<ValidationError>();
 
-		// Validation failed: [cenCode] Cen code 'ABCDE' is invalid; [marketId] Market id 0 is invalid
+		static string CreateMessageFromString(string? error) {
+			if (string.IsNullOrEmpty(error)) {
+				return StandardMessage;
+			} else {
+				return error;
+			}
+		}
+
+		// [cenCode] Cen code 'ABCDE' is invalid; [marketId] Market id 0 is invalid
 		static string CreateMessage(ValidationError[] errors) {
 			if (errors.Length == 0) {
-				return "Validation failed";
+				return StandardMessage;
 			}
-			var items = errors.Select(x => string.IsNullOrEmpty(x.Field) ? x.Error : $"[{x.Field}] {x.Error}");
-			return $"Validation failed: {string.Join("; ", items)}";
+			return string.Join<ValidationError>("; ", errors);
 		}
 	}
 }
