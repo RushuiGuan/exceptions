@@ -6,12 +6,28 @@ A shared vocabulary of common semantic exception types. This assembly defines wh
 
 | Exception | Status Code | Meaning |
 |---|---|---|
-| `ValidationException` | 422 | Input is structurally or semantically invalid and cannot be processed as-is. |
+| `ValidationException` | 422 | Input is structurally or semantically invalid and cannot be processed as-is. Carries a single message. |
+| `FieldValidationException` | 422 | Input is invalid, reported as a list of per-field errors. |
 | `NotAuthenticatedException` | 401 | The caller's identity has not been established. |
 | `ForbiddenException` | 403 | The caller is authenticated but lacks permission. |
 | `NotFoundException` | 404 | A required entity or resource cannot be found. |
 | `ConflictException` | 409 | The operation was attempted but conflicts with the current state of a resource. |
 | `PreconditionFailedException` | 412 | The caller's explicitly stated precondition about resource state is not met. |
+
+## Validation exceptions
+
+Validation failures come in two shapes, and each has its own exception type. The two are unrelated, so a handler that maps validation failures must check for both.
+
+- **`ValidationException`** carries a single message. With no message, or an empty one, the message is `"Validation failed"`.
+- **`FieldValidationException`** carries a list of `ValidationError` items in `Errors`, each with an optional field name. Its message joins the errors, for example `[cenCode] Cen code 'ABCDE' is invalid; Base and quote currency are the same`.
+
+```csharp
+throw new ValidationException("Cen code is missing");
+
+throw new FieldValidationException(
+    new ValidationError("cenCode", "Cen code 'ABCDE' is invalid"),
+    new ValidationError("Base and quote currency are the same"));
+```
 
 ## Framework Exceptions
 

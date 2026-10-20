@@ -2,7 +2,7 @@
 
 status: active
 created: 2026-06-21T10:00:00-04:00
-updated: 2026-06-26T00:00:00-04:00
+updated: 2026-10-20T19:30:00-04:00
 ----
 
 ## Business Requirements
@@ -34,6 +34,10 @@ The assembly is deliberately scoped to **common semantic exceptions** — except
 ## Key Design Decisions (cont.)
 
 - **Marker interface replaced by a value-based classifier**: `ISemanticException` (a marker-with-metadata interface carrying a `Description`) was removed. A marker interface can only ever be implemented by types this assembly owns, so it could never cover the framework exceptions (`ArgumentException`, `NotSupportedException`, `TimeoutException`, `OperationCanceledException`) that belong to the same vocabulary. The `SemanticError` enum names each condition as a *value*, which can describe owned and framework exceptions equally, and `TryGetSemanticError` is the single classifier over both groups.
+
+### Each validation shape has its own exception
+
+A failure described by one message and a failure reported as a list of per-field errors are separate, unrelated exception types. A single type covering both was rejected because it left consumers guessing which shape they had; an inheritance link was rejected for the same reason. The cost is that a handler mapping validation failures must recognize both types.
 
 ## Open Questions
 
